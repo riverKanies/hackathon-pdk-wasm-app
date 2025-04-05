@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 import {  Wallet, EsploraClient, ChangeSet, FeeRate, Recipient, Address, Amount, Psbt, SignOptions } from 'bitcoindevkit';
 import { Uri, Receiver, SenderBuilder, Sender, Request, InputPair } from 'payjoindevkit';
+import { bech32m } from 'bech32';
 
 const network = "signet";
 const ohttpRelay = "https://pj.bobspacebkk.com";
@@ -65,7 +66,16 @@ export default App;
 
 async function test() {
   console.log(Wallet)
-  const { senderWallet, receiverWallet } = await initSenderAndReceiverWallets();
+
+  // make request to payjoin directory to get ohttp keys
+  const ohttpKeysResponse = await fetch(`${payjoinDirectory}/.well-known/ohttp-gateway`)
+  const ohttpKeys = new Uint8Array(await ohttpKeysResponse.arrayBuffer())
+
+  console.log('OHTTP Keys Buffer Length:', ohttpKeys.length);
+  console.log('OHTTP Keys:', bech32m.encode('OH', bech32m.toWords(ohttpKeys)))
+  
+
+  // const { senderWallet, receiverWallet } = await initSenderAndReceiverWallets();
 }
 
 async function initSenderAndReceiverWallets(): Promise<{ senderWallet: Wallet, receiverWallet: Wallet }> {
